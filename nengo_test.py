@@ -229,11 +229,14 @@ def show_results():
 if __name__ == '__main__':
     print(test_ann())
 
+
+    # Presentation time, scale firing rate, synaptic smoothing
+
     # Decent parameters: (60, 10, 0.01)
     hyperparameters = [( 50, 1000, 0.01)]
-    #hyperparameters = [( 5, 10,  0.01), (10, 10,  0.01), (50,  10, 0.01), (100,  10, 0.01),
+    #hyperparameters = [( 5, 10,  0.01), (10, 10,  0.01), (50,  10, 0.01), (100,   10, 0.01),
     #                   (50,  1,  0.01), (50, 10,  0.01), (50, 100, 0.01), ( 50, 1000, 0.01),
-    #                   (50, 10, 0.001), (50, 10, 0.005), (50,  10, 0.01), ( 50,  10, 0.05)]
+    #                   (50, 10, 0.001), (50, 10, 0.005), (50,  10, 0.01), ( 50,   10, 0.05)]
 
     if True:
         with Pool(processes=3) as pool:
