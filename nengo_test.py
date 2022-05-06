@@ -229,13 +229,14 @@ if __name__ == '__main__':
 
     # Presentation time, scale firing rate, synaptic smoothing
 
-    hyperparameters = [(50, 1000, 0.01)]
-    #hyperparameters = [( 5, 10,  0.01), (10, 10,  0.01), (50,  10, 0.01), (100,   10, 0.01),
-    #                   (50,  1,  0.01), (50, 10,  0.01), (50, 100, 0.01), ( 50, 1000, 0.01),
-    #                   (50, 10, 0.001), (50, 10, 0.005), (50,  10, 0.01), ( 50,   10, 0.05)]
+    #hyperparameters = [(50, 1000, 0.01)]
+    hyperparameters = [( 5,   10,  0.01), (10, 10,  0.01), (50,  10, 0.01), (100,   10, 0.01),
+                       (50,    1,  0.01), (50, 10,  0.01), (50, 100, 0.01), ( 50, 1000, 0.01),
+                       (50,   10, 0.001), (50, 10, 0.005), (50,  10, 0.01), ( 50,   10, 0.05),
+                       (50, 1000,  0.01)]
 
     if True:
-        num_threads = 3
+        num_threads = 4
         if EPISODES_TEST/num_threads - int(EPISODES_TEST/num_threads) > 1e-6:
             print("Warning: EPISODES_TEST not cleanly divisible by num_threads, trials may be lower than intended")
         EPISODES_TEST = int(EPISODES_TEST/num_threads)
