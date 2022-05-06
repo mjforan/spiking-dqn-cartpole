@@ -125,7 +125,7 @@ class DQNAgent:
 
         nengo_converter = nengo_dl.Converter(
             self.model,
-            #swap_activations={tf.keras.activations.relu: nengo.SpikingRectifiedLinear()},
+            swap_activations={tf.keras.activations.relu: nengo.SpikingRectifiedLinear()},
             scale_firing_rates=scale_fr,
             synapse=synapse,
         )
@@ -145,10 +145,6 @@ class DQNAgent:
                     tiled_test_images = np.tile(np.reshape(state, (1, 1, -1)), (1, num_steps, 1))
 
                     data = nengo_sim.predict({nengo_input: tiled_test_images})
-                    #print(data)
-                    #print(data[nengo_output][:, -1])
-                    #print(np.argmax(data[nengo_output][:, -1], axis=-1))
-                    #input()
                     action = np.argmax(data[nengo_output][:, -1], axis=-1)[0]
                     state, reward, done, _ = self.step(action)
                     i += 1
@@ -239,7 +235,7 @@ if __name__ == '__main__':
     #                   (50, 10, 0.001), (50, 10, 0.005), (50,  10, 0.01), ( 50,   10, 0.05)]
 
     if True:
-        num_threads = 3
+        num_threads = 1
         if EPISODES_TEST/num_threads - int(EPISODES_TEST/num_threads) > 1e-6:
             print("Warning: EPISODES_TEST not cleanly divisible by num_threads, trials may be lower than intended")
         EPISODES_TEST = int(EPISODES_TEST/num_threads)
