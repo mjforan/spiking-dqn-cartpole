@@ -246,8 +246,9 @@ if __name__ == '__main__':
             with Pool(processes=num_threads) as pool:
                 partials = np.array(pool.map(test_snn, h2), dtype=object)
                 scores = np.concatenate(partials[:,1])
-                results.append(np.concatenate((h,[scores.mean(), scores.std(), EPISODES_TEST*num_threads])))
-                print(results)
+                h_results = np.concatenate((h,[scores.mean(), scores.std(), EPISODES_TEST*num_threads]))
+                print(h_results)
+                results.append(h_results)
         with open("results.npy", "wb") as f:
             np.save(f, results, allow_pickle=True)
         
