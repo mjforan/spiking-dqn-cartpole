@@ -14,6 +14,7 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tqdm import tqdm
 
+EPISODES_TEST = 200
 
 class DQNAgent:
     def __init__(self, env_name):
@@ -24,7 +25,6 @@ class DQNAgent:
         self.env._max_episode_steps = 1000
         self.state_size = self.env.observation_space.shape[0]
         self.action_size = self.env.action_space.n
-        self.EPISODES_TEST = 200
 
         self.gamma = 0.95    # discount rate
         
@@ -103,8 +103,8 @@ class DQNAgent:
     def test(self):
         self.load(self.Model_name)
         self.model.summary()
-        scores = np.zeros(self.EPISODES_TEST)
-        for e in range(self.EPISODES_TEST):
+        scores = np.zeros(EPISODES_TEST)
+        for e in range(EPISODES_TEST):
             state = self.reset()
             done = False
             i = 0
@@ -116,7 +116,7 @@ class DQNAgent:
                     scores[e] = i
                     break
     
-        return (scores.mean(), scores.std())
+        return scores
 
 
 
@@ -135,8 +135,8 @@ class DQNAgent:
 
         # build network, load in trained weights, run inference on test images
         with nengo_dl.Simulator(nengo_converter.net, minibatch_size=1, progress_bar=False) as nengo_sim:
-            scores = np.zeros(self.EPISODES_TEST)
-            for e in range(self.EPISODES_TEST):
+            scores = np.zeros(EPISODES_TEST)
+            for e in range(EPISODES_TEST):
                 state = self.reset()
                 done = False
                 i = 0
@@ -156,7 +156,7 @@ class DQNAgent:
                         scores[e] = i
                         break
                 self.env.close()
-            return (scores.mean(), scores.std())
+            return scores
 
 
 
@@ -223,8 +223,9 @@ def test_snn(hp):
 
 def show_results():
     data = np.load('results.npy', allow_pickle=True)
+    np.set_printoptions(suppress=True)
+    np.set_printoptions(precision=3)
     print(data)
-    print(data.shape)
 
 if __name__ == '__main__':
     #print(test_ann())
@@ -232,21 +233,31 @@ if __name__ == '__main__':
 
     # Presentation time, scale firing rate, synaptic smoothing
 
-    # Decent parameters: (60, 10, 0.01)
-    #hyperparameters = [( 50, 1000, 0.01)]
-    hyperparameters = [( 5, 10,  0.01), (10, 10,  0.01), (50,  10, 0.01), (100,   10, 0.01),
-                       (50,  1,  0.01), (50, 10,  0.01), (50, 100, 0.01), ( 50, 1000, 0.01),
-                       (50, 10, 0.001), (50, 10, 0.005), (50,  10, 0.01), ( 50,   10, 0.05)]
+    hyperparameters = [(50, 1000, 0.01)]
+    #hyperparameters = [( 5, 10,  0.01), (10, 10,  0.01), (50,  10, 0.01), (100,   10, 0.01),
+    #                   (50,  1,  0.01), (50, 10,  0.01), (50, 100, 0.01), ( 50, 1000, 0.01),
+    #                   (50, 10, 0.001), (50, 10, 0.005), (50,  10, 0.01), ( 50,   10, 0.05)]
 
     if True:
-        with Pool(processes=3) as pool:
-            results = np.array(pool.map(test_snn, hyperparameters), dtype=object)
-            with open("results.npy", "wb") as f:
-                np.save(f, results, allow_pickle=True)
-    
-        show_results()
+        num_threads = 3
+        if EPISODES_TEST/num_threads - int(EPISODES_TEST/num_threads) > 1e-6:
+            print("Warning: EPISODES_TEST not cleanly divisible by num_threads, trials may be lower than intended")
+        EPISODES_TEST = int(EPISODES_TEST/num_threads)
 
-    
+        results = []
+        for h in hyperparameters:
+            h2 = [h for _ in range(num_threads)]
+            with Pool(processes=num_threads) as pool:
+                partials = np.array(pool.map(test_snn, h2), dtype=object)
+                scores = np.concatenate(partials[:,1])
+                results.append(np.concatenate((h,[scores.mean(), scores.std(), EPISODES_TEST*num_threads])))
+                print(results)
+        with open("results.npy", "wb") as f:
+            np.save(f, results, allow_pickle=True)
+        
+    show_results()
+
+
 
 
 
