@@ -219,11 +219,11 @@ def test_snn(hp):
 
 def show_results():
     data = np.load('results.npy', allow_pickle=True)
-    np.set_printoptions(suppress=True)
-    np.set_printoptions(precision=3)
     print(data)
 
 if __name__ == '__main__':
+    np.set_printoptions(suppress=True)
+    np.set_printoptions(precision=3)
     #print(test_ann())
 
 
@@ -235,7 +235,7 @@ if __name__ == '__main__':
     #                   (50, 10, 0.001), (50, 10, 0.005), (50,  10, 0.01), ( 50,   10, 0.05)]
 
     if True:
-        num_threads = 1
+        num_threads = 3
         if EPISODES_TEST/num_threads - int(EPISODES_TEST/num_threads) > 1e-6:
             print("Warning: EPISODES_TEST not cleanly divisible by num_threads, trials may be lower than intended")
         EPISODES_TEST = int(EPISODES_TEST/num_threads)
