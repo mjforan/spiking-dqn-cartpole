@@ -156,51 +156,6 @@ class DQNAgent:
 
 
 
-
-
-
-
-
-# ToDo use this to show trend across hyperparameters
-
-def plot_spikes(probe, test_data_idx=0, num_neurons=512, dt=0.001):
-  """
-  Plots the spikes of the layer corresponding to the `probe`.
-
-  Args:
-    probe <nengo.probe.Probe>: The probe object of the layer whose spikes are to
-                               be plotted.
-    test_data_idx <int>: Test image's index for which spikes were generated.
-    num_neurons <int>: Number of random neurons for which spikes are to be plotted.
-    dt <int>: The duration of each timestep. Nengo-DL's default duration is 0.001s.
-  """
-  lyr_name = probe.obj.ensemble.label
-  spikes_matrix = ndl_mdl_spikes[test_data_idx][lyr_name] * sfr * dt
-  neurons = np.random.choice(spikes_matrix.shape[1], num_neurons, replace=False)
-  spikes_matrix = spikes_matrix[:, neurons]
-
-  fig, ax = plt.subplots(figsize=(14, 12), facecolor="#00FFFF")
-  color = matplotlib.cm.get_cmap('tab10')(0)
-  timesteps = np.arange(n_steps)
-  for i in range(num_neurons):
-    for t in timesteps[np.where(spikes_matrix[:, i] != 0)]:
-      ax.plot([t, t], [i+0.5, i+1.5], color=color)
-
-  ax.set_ylim(0.5, num_neurons+0.5)
-  ax.set_yticks(list(range(1, num_neurons+1, int(np.ceil(num_neurons/50)))))
-  ax.set_xticks(list(range(1, n_steps+1, 10)))
-  ax.set_ylabel("Neuron Index")
-  ax.set_xlabel("Time in $ms$")
-  ax.set_title("Layer: %s" % lyr_name)
-
-
-
-
-
-
-
-
-
 def test_ann():
     for gpu in tf.config.experimental.list_physical_devices("GPU"):
         tf.config.experimental.set_memory_growth(gpu, True) 
@@ -230,10 +185,14 @@ if __name__ == '__main__':
     # Presentation time, scale firing rate, synaptic smoothing
 
     #hyperparameters = [(50, 1000, 0.01)]
+    #[ 50.    1000.     0.01   116.52  70.958 200.   ]
+
+    #first set of hyperparameters, basically nothing worked until sfr was 1000
     #hyperparameters = [( 5,   10,  0.01), (10, 10,  0.01), (50,  10, 0.01), (100,   10, 0.01),
     #                   (50,    1,  0.01), (50, 10,  0.01), (50, 100, 0.01), ( 50, 1000, 0.01),
     #                   (50,   10, 0.001), (50, 10, 0.005), (50,  10, 0.01), ( 50,   10, 0.05),]
 
+    #second set of hyperparameters to evaluate other parameters when sfr=1000
     hyperparameters = [( 5,   1000,  0.01), (10, 1000,  0.01), (50,  1000, 0.01), (100,   1000, 0.01),
                        (50,   1000, 0.001), (50, 1000, 0.005), (50,  1000, 0.01), ( 50,   1000, 0.05)]
 
@@ -241,21 +200,30 @@ if __name__ == '__main__':
     #[ 10.     10.      0.01   10.939   3.832 198.   ]
     #[ 50.     10.      0.01   15.4     6.782 200.   ]
     #[100.     10.      0.01   10.25    2.582 200.   ]
+
     #[ 50.      1.      0.01    9.465   0.754 200.   ]
     #[ 50.     10.      0.01    9.63    1.369 200.   ]
     #[ 50.    100.      0.01   13.26    4.664 200.   ]
     #[ 50.    1000.     0.01   130.37  82.562 200.   ]
+
     #[ 50.     10.      0.001   9.355   0.761 200.   ]
     #[ 50.     10.      0.005   9.36    0.768 200.   ]
     #[ 50.     10.      0.01    9.51    0.995 200.   ]
     #[ 50.     10.      0.05    9.34    0.731 200.   ]
-    #[ 50.    1000.     0.01   116.52  70.958 200.   ]
+    
 
     #[   5.    1000.       0.01     9.4      0.748  200.   ]
     #[  10.    1000.       0.01     9.455    0.754  200.   ]
+    #[  50.    1000.       0.01   118.305   78.494  200.   ]
+    #[ 100.    1000.       0.01   111.815   81.367  200.   ]
+
+    #[  50.    1000.       0.001   84.735   62.879  200.   ]
+    #[  50.    1000.       0.005  118.205   88.828  200.   ]
+    #[  50.    1000.       0.01   135.665   83.287  200.   ]
+    #[  50.    1000.       0.05     9.38     0.745  200.   ]
 
     if True:
-        num_threads = 4
+        num_threads = 2
         if EPISODES_TEST/num_threads - int(EPISODES_TEST/num_threads) > 1e-6:
             print("Warning: EPISODES_TEST not cleanly divisible by num_threads, trials may be lower than intended")
         EPISODES_TEST = int(EPISODES_TEST/num_threads)
@@ -273,15 +241,3 @@ if __name__ == '__main__':
             np.save(f, results, allow_pickle=True)
         
     show_results()
-
-
-
-
-
-# ToDo modify probe locations to suit new model architecture
-
-# Get the probes for Input, first Conv, and the Output layers.
-
-#plot_spikes(first_conv_probe)
-#plot_spikes(penltmt_dense_probe)
-
